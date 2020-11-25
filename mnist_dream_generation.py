@@ -14,7 +14,7 @@ y = np.concatenate((y_train, y_test), axis = 0)
 print(X.shape, y.shape)
 
 # Isolate Ones
-ones = X[np.where(y == 1)]
+ones = X[np.where(y == 5)]
 ones = (ones.reshape((len(ones), 28*28)) > .5).astype(float)
 print(ones.shape)
 plt.imshow(ones.reshape((len(ones),28,28))[0])
@@ -37,6 +37,6 @@ for dream in tqdm(dreams[::100]):
     dream = dream.reshape(28,28)
     frames.append([plt.imshow(dream,animated=True)])
 
-ani = animation.ArtistAnimation(fig, frames, interval=50, blit=True)
+ani = animation.ArtistAnimation(fig, frames, interval=10, blit=True)
 ani.save('dreaming.gif')
 plt.show()
