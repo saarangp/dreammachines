@@ -1,16 +1,13 @@
 import numpy as np
 import tensorflow as tf
 
-
-
-
 class helmholtz(object):
-    def __init__(self, epsilon):
-        self.V_R = np.zeros(1) #TODO: Fix weights
-        self.W_R = np.zeros(1) #TODO: Fix This
-        self.V_G = np.zeros(1) #TODO: Fix weights
-        self.W_G = np.zeros(1) #TODO: Fix This
-        self.B_G = np.zeros(1) #TODO: Fix
+    def __init__(self, epsilon, size):
+        self.V_R = np.zeros(size) #TODO: Fix weights
+        self.W_R = np.zeros(size) #TODO: Fix This
+        self.V_G = np.zeros(size) #TODO: Fix weights
+        self.W_G = np.zeros(size) #TODO: Fix This
+        self.B_G = np.zeros(size) #TODO: Fix
 
         self.epsilon = epsilon
 
@@ -46,3 +43,13 @@ class helmholtz(object):
 
         self.V_R += self.epsilon * np.dot(X_layer1 - psi, X_layer2)
         self.W_R += self.epsilon * np.dot(X - zeta, X_layer1)
+
+    def train(self, X, n_iter = 1000):
+        # todo Implement KL Divergence Stopping
+        i = 0
+        while i < n_iter:
+            self.wake_phase(X)
+            self.sleep_phase()
+            i+=1
+
+
