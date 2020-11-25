@@ -33,10 +33,10 @@ plt.show()
 
 frames = [] # for storing the generated images
 fig = plt.figure()
-for dream in tqdm(h.dreams[::10]):
+for dream in tqdm(dreams[::100]):
     dream = dream.reshape(28,28)
     frames.append([plt.imshow(dream,animated=True)])
 
-ani = animation.ArtistAnimation(fig, frames, interval=100, blit=True)
-# ani.save('movie.gif')
+ani = animation.ArtistAnimation(fig, frames, interval=50, blit=True)
+ani.save('dreaming.gif')
 plt.show()
