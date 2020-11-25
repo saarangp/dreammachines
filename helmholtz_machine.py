@@ -33,13 +33,15 @@ class helmholtz(object):
 
         #DREAM!
         X = np.random.binomial(1, p)
-        self.dreams.append(X)
+        # self.dreams.append(X)
 
         p = (tf.math.sigmoid(np.dot(self.W_G, X)))
         X_layer1 = np.random.binomial(1, p)
 
         p = (tf.math.sigmoid(np.dot(self.V_G, X_layer1)))
         X_layer2 = np.random.binomial(1, p)
+
+        self.dreams.append(X_layer2)
 
         psi = (tf.math.sigmoid(np.dot(self.V_R, X_layer2)))
         zeta = (tf.math.sigmoid(np.dot(self.W_R, X_layer2)))
