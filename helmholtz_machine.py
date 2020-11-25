@@ -8,20 +8,20 @@ class helmholtz(object):
         self.V_G = np.zeros(size) #TODO: Fix weights
         self.W_G = np.zeros(size) #TODO: Fix This
         self.B_G = np.zeros(size) #TODO: Fix
-
+        self.dreams = []
         self.epsilon = epsilon
 
     def wake_phase(self, X):
         # Recognition Pass
-        p = tf.asnumpy(tf.math.sigmoid(np.dot(self.V_R, X)))
+        p = (tf.math.sigmoid(np.dot(self.V_R, X)))
         X_layer1 = np.random.binomial(1, p)
-        p = tf.asnumpy(tf.math.sigmoid(np.dot(self.W_R, X_layer1)))
+        p = (tf.math.sigmoid(np.dot(self.W_R, X_layer1)))
         X_layer2 = np.random.binomial(1, p)
 
         # Generative Pass
-        zeta = tf.asnumpy(tf.math.sigmoid(self.B_G))
-        psi = tf.asnumpy(tf.math.sigmoid(np.dot(self.W_G, X_layer2)))
-        delta = tf.asnumpy(tf.math.sigmoid(np.dot(self.W_G, X_layer1)))
+        zeta = (tf.math.sigmoid(self.B_G))
+        psi = (tf.math.sigmoid(np.dot(self.W_G, X_layer2)))
+        delta = (tf.math.sigmoid(np.dot(self.W_G, X_layer1)))
 
         self.B_G += self.epsilon * (X_layer2 - zeta)
         self.W_G += self.epsilon * np.dot(X_layer1 - psi, X_layer2)
@@ -29,17 +29,20 @@ class helmholtz(object):
 
 
     def sleep_phase(self):
-        p = tf.asnumpy(tf.math.sigmoid(self.B_G))
-        X = np.random.binomial(1, p)
+        p = (tf.math.sigmoid(self.B_G))
 
-        p = tf.asnumpy(tf.math.sigmoid(np.dot(self.W_G, X)))
+        #DREAM!
+        X = np.random.binomial(1, p)
+        self.dreams.append(X)
+
+        p = (tf.math.sigmoid(np.dot(self.W_G, X)))
         X_layer1 = np.random.binomial(1, p)
 
-        p = tf.asnumpy(tf.math.sigmoid(np.dot(self.V_G, X_layer1)))
+        p = (tf.math.sigmoid(np.dot(self.V_G, X_layer1)))
         X_layer2 = np.random.binomial(1, p)
 
-        psi = tf.asnumpy(tf.math.sigmoid(np.dot(self.V_R, X_layer2)))
-        zeta = tf.asnumpy(tf.math.sigmoid(np.dot(self.W_R, X_layer2)))
+        psi = (tf.math.sigmoid(np.dot(self.V_R, X_layer2)))
+        zeta = (tf.math.sigmoid(np.dot(self.W_R, X_layer2)))
 
         self.V_R += self.epsilon * np.dot(X_layer1 - psi, X_layer2)
         self.W_R += self.epsilon * np.dot(X - zeta, X_layer1)
