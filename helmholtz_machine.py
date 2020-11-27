@@ -44,7 +44,7 @@ class helmholtz(object):
         self.dreams.append(X_layer2)
 
         psi = (tf.math.sigmoid(np.dot(self.V_R, X_layer2)))
-        zeta = (tf.math.sigmoid(np.dot(self.W_R, X_layer2)))
+        zeta = (tf.math.sigmoid(np.dot(self.W_R, X_layer1)))
 
         self.V_R += self.epsilon * np.dot(X_layer1 - psi, X_layer2)
         self.W_R += self.epsilon * np.dot(X - zeta, X_layer1)
