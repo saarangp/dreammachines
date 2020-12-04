@@ -14,14 +14,14 @@ y = np.concatenate((y_train, y_test), axis = 0)
 print(X.shape, y.shape)
 
 # Isolate Ones
-ones = X[np.where(y == 5)]
-ones = (ones.reshape((len(ones), 28*28)) > .5).astype(float)
-print(ones.shape)
-plt.imshow(ones.reshape((len(ones),28,28))[0])
+digit = X[np.where(y == 1)]
+digit = (digit.reshape((len(digit), 28*28)) > .5).astype(float)
+print(digit.shape)
+plt.imshow(digit.reshape((len(digit),28,28))[0])
 plt.show()
 
 h = hm.helmholtz(.1, 784)
-for image in tqdm(ones[:100]):
+for image in tqdm(digit[:100]):
     h.train(image)
 
 dreams = h.dreams
@@ -39,4 +39,6 @@ for dream in tqdm(dreams[::100]):
 
 ani = animation.ArtistAnimation(fig, frames, interval=10, blit=True)
 ani.save('dreaming.gif')
+print('Animation Creation Finished')
+
 plt.show()
