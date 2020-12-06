@@ -1,5 +1,5 @@
 import numpy as np
-import helmholtz_machine as hm
+import helmholtz as hm #helmholtz_machine
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -20,7 +20,7 @@ print(digit.shape)
 plt.imshow(digit.reshape((len(digit),28,28))[0]/255, cmap='gray')
 plt.show()
 
-h = hm.helmholtz(.1, 784)
+h = hm.helmholtz([784,784], 'beta', .1)
 for image in tqdm(digit[:100]):
     h.train(image)
 
