@@ -20,7 +20,7 @@ print(digit.shape)
 plt.imshow(digit.reshape((len(digit),28,28))[0]/255, cmap='gray')
 plt.show()
 
-h = hm.helmholtz([784,32], 'beta', .1)
+h = hm.helmholtz([784,64,32], 'beta', .1)
 for image in tqdm(digit[:10]):
     h.train(image)
 
