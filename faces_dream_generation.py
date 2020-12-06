@@ -26,7 +26,7 @@ print("Example Face")
 plt.imshow(temp[0].reshape(image_shape), cmap = 'gray')
 
 h = hm.helmholtz(.1, 4096)
-for image in tqdm(temp[:100]):
+for image in tqdm(temp):
     h.train(image)
 
 dreams = h.dreams
