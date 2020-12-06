@@ -7,8 +7,8 @@ class Layer(object):
 
     def __init__(self, size):
         self.size = size
-        self.R = np.zeros(size) #Recognition weights 2d
-        self.G = np.zeros(size) #Generative Weights 2d
+        self.R = np.zeros(size) #Recognition weights
+        self.G = np.zeros(size) #Generative Weights
 
 class helmholtz(object):
     
@@ -53,10 +53,10 @@ class helmholtz(object):
         # output = X
         #Recognition
         outputs = [X]
-        print(f"X.shape: {X.shape}")
+        # print(f"X.shape: {X.shape}")
         for layer in self.layers:
             sig = self.sigmoid(np.dot(outputs[-1], layer.R))
-            print("recognition: ", sig.shape, layer.R.shape, outputs[-1].shape)
+            # print("recognition: ", sig.shape, outputs[-1].shape, layer.R.shape)
             outputs.append(self.sample(sig))
 
         #Generative
@@ -64,8 +64,12 @@ class helmholtz(object):
         self.B_G += self.epsilon * (outputs[-1] - zeta)
         
         for i, layer in enumerate(self.layers):
-            delta = self.sigmoid(np.dot(layer.G, outputs[i+1]))
-            layer.G += self.epsilon * np.dot(outputs[i] - delta, outputs[i+1])
+            # print("Generative a:", outputs[i+1].shape, layer.G.shape, outputs[i].shape)
+            delta = self.sigmoid(np.dot(outputs[i+1], layer.G.T))
+            # print("Generative b:", outputs[i + 1].shape, layer.G.shape, outputs[i].shape, delta.shape)
+            layerG_upd = self.epsilon * np.dot(outputs[i + 1].T, outputs[i] - delta)
+            # print(f"layerG Updated: {layerG_upd.shape}")
+            layer.G += layerG_upd.T
             
     def sleep_phase(self):
         p = (self.sigmoid(self.B_G))
@@ -74,13 +78,20 @@ class helmholtz(object):
         outputs = [self.sample(p)]
         for layer in self.layers[::-1]:
             p = (self.sigmoid(np.dot(layer.G, outputs[-1])))
+            
             outputs.append(self.sample(p))
         
         self.dreams.append(outputs[-1])
         #W_R recent output
         for i,layer in enumerate(self.layers[::-1]):
-            psi = self.sigmoid(np.dot(layer.R, outputs[i+1]))
-            layer.R += self.epsilon * np.dot(outputs[i] - psi, outputs[i+1])
+            #print("sleep: ", layer.R.shape, outputs[i+1].shape)
+            psi = self.sigmoid(np.dot(outputs[i + 1].T, layer.R))
+            
+            #print("psi: ", psi.shape, "outputs[i]: ", outputs[i].shape,  "outputs[i+1]: ", outputs[i+1].shape)
+            
+            layerR_upd = self.epsilon * np.dot(outputs[i+1], outputs[i].T - psi)
+            #print(f"layerR Updated: {layerR_upd.shape}")
+            layer.R += layerR_upd
             
     def train(self, X, n_iter = 1000):
         # todo Implement KL Divergence Stopping

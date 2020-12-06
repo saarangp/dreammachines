@@ -15,12 +15,12 @@ print(X.shape, y.shape)
 
 # Isolate Ones
 digit = X[np.where(y == 1)]
-digit = (digit.reshape((len(digit), 28*28))).astype(float)
+digit = (digit.reshape((len(digit), 1, 28*28))).astype(float)
 print(digit.shape)
 plt.imshow(digit.reshape((len(digit),28,28))[0]/255, cmap='gray')
 plt.show()
 
-h = hm.helmholtz([784,784], 'beta', .1)
+h = hm.helmholtz([784,32], 'beta', .1)
 for image in tqdm(digit[:10]):
     h.train(image)
 
@@ -33,7 +33,7 @@ plt.show()
 
 frames = [] # for storing the generated images
 fig = plt.figure()
-for dream in tqdm(dreams[:1000:10]):
+for dream in tqdm(dreams[::100]):
     dream = dream.reshape(28,28)
     frames.append([plt.imshow(dream,animated=True, cmap='gray')])
 
