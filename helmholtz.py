@@ -15,10 +15,10 @@ class helmholtz(object):
     def __init__(self, l_sizes, sample_type = 'binomial', epsilon = .1):
         """
         Helmholtz Machine Class w/ k layers
-        @param layers (list): [782,32,2]
+        @param layers (list): list of sizes of layers
         """
         self.layers = []
-        for size in l_sizes:
+        for i,size in enumerate(l_sizes):
             self.layers.append(Layer(size))
         print(self.layers)
         self.dreams = []
@@ -76,7 +76,7 @@ class helmholtz(object):
             p = (self.sigmoid(np.dot(layer.G, outputs[-1])))
             outputs.append(self.sample(p))
         
-        self.dreams.append(outputs[0])
+        self.dreams.append(outputs[-1])
         #W_R recent output
         for i,layer in enumerate(self.layers[::-1]):
             psi = self.sigmoid(np.dot(layer.R, outputs[i+1]))
