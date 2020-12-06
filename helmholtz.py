@@ -18,15 +18,13 @@ class helmholtz(object):
         @param layers (list): list of sizes of layers
         """
         self.layers = []
-        for i,size in enumerate(l_sizes):
+        for size in l_sizes:
             self.layers.append(Layer(size))
         print(self.layers)
         self.dreams = []
         self.B_G = np.zeros(l_sizes[0])
         self.sample_type = sample_type
         self.epsilon = epsilon
-        
-
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
@@ -48,14 +46,11 @@ class helmholtz(object):
     def wake_phase(self, X):
 
         # output = X
+        #Recognition
         outputs = [X]
         for layer in self.layers:
-            #Recognition
-            # print(outputs[-1])
-            # print(layer.R)
             sig = self.sigmoid(np.dot(layer.R,outputs[-1]))
-            
-            # output = self.sample(sig)
+            # print("recognition: ", sig.shape, layer.R.shape, outputs[-1])
             outputs.append(self.sample(sig))
 
         #Generative
@@ -66,7 +61,6 @@ class helmholtz(object):
             delta = self.sigmoid(np.dot(layer.G, outputs[i+1]))
             layer.G += self.epsilon * np.dot(outputs[i] - delta, outputs[i+1])
             
-        
     def sleep_phase(self):
         p = (self.sigmoid(self.B_G))
 

@@ -1,5 +1,5 @@
 import numpy as np
-import helmholtz_machine as hm
+import helmholtz as hm
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -19,18 +19,19 @@ faces_centered = faces - faces.mean(axis=0)
 # local centering
 faces_centered -= faces_centered.mean(axis=1).reshape(n_samples, -1)
 
-temp = np.concatenate((faces_centered, faces_centered))
-# print(max(temp[0]), min(temp[0]))
-# temp = (temp > 0).astype(float)
-print("Example Face")
-plt.imshow(temp[0].reshape(image_shape), cmap = 'gray')
+temp = np.vstack([faces_centered[0]] * 1500)
+# temp = np.concatenate((faces_centered, faces_centered)) # all faces 2x
+print(f"Input Shape: {temp.shape}")
 
-h = hm.helmholtz(.1, 4096)
+print("Example Face")
+plt.imshow(temp[0].reshape(image_shape)/255, cmap = 'gray')
+
+h = hm.helmholtz([4096,4096], 'beta', .1)
 for image in tqdm(temp):
     h.train(image)
 
 dreams = h.dreams
-print(len(dreams)), len(dreams[0])
+# print("Dream Info:", len(dreams)), len(dreams[0])
 
 plt.figure()
 plt.imshow(dreams[-1].reshape(image_shape), cmap = 'gray')
@@ -38,13 +39,13 @@ plt.show()
 
 frames = [] # for storing the generated images
 fig = plt.figure()
-for dream in tqdm(dreams[::100]):
+for dream in tqdm(dreams[:1000000000:500]):
     dream = dream.reshape(image_shape)
     frames.append([plt.imshow(dream,cmap = 'gray',animated=True)])
 
 print('Animation Creation Started')
 ani = animation.ArtistAnimation(fig, frames, interval=10, blit=True)
-ani.save('faces_dreaming.gif')
+ani.save('faces_dreaming_2.gif')
 print('Animation Creation Finished')
 
 plt.show()
