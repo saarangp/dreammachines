@@ -5,10 +5,10 @@ import math
 
 class Layer(object):
 
-    def __init__(self,size):
+    def __init__(self, size):
         self.size = size
-        self.R = np.zeros(size) #Recognition weights
-        self.G = np.zeros(size) #Generative Weights
+        self.R = np.zeros(size) #Recognition weights 2d
+        self.G = np.zeros(size) #Generative Weights 2d
 
 class helmholtz(object):
     
@@ -18,11 +18,16 @@ class helmholtz(object):
         @param layers (list): list of sizes of layers
         """
         self.layers = []
-        for size in l_sizes:
-            self.layers.append(Layer(size))
-        print(self.layers)
+        for i, size in enumerate(l_sizes):
+            if i < len(l_sizes) - 1:
+                l_size = (size, l_sizes[i+1])
+            else:
+                l_size = (size, 1)
+            self.layers.append(Layer(l_size))
+            print(l_size)
+
         self.dreams = []
-        self.B_G = np.zeros(l_sizes[0])
+        self.B_G = np.zeros((1,1))
         self.sample_type = sample_type
         self.epsilon = epsilon
 
@@ -48,9 +53,10 @@ class helmholtz(object):
         # output = X
         #Recognition
         outputs = [X]
+        print(f"X.shape: {X.shape}")
         for layer in self.layers:
-            sig = self.sigmoid(np.dot(layer.R,outputs[-1]))
-            # print("recognition: ", sig.shape, layer.R.shape, outputs[-1])
+            sig = self.sigmoid(np.dot(outputs[-1], layer.R))
+            print("recognition: ", sig.shape, layer.R.shape, outputs[-1].shape)
             outputs.append(self.sample(sig))
 
         #Generative

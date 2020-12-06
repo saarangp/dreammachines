@@ -21,7 +21,7 @@ plt.imshow(digit.reshape((len(digit),28,28))[0]/255, cmap='gray')
 plt.show()
 
 h = hm.helmholtz([784,784], 'beta', .1)
-for image in tqdm(digit[:100]):
+for image in tqdm(digit[:10]):
     h.train(image)
 
 dreams = h.dreams
