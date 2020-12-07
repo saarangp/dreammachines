@@ -19,19 +19,21 @@ faces_centered = faces - faces.mean(axis=0)
 # local centering
 faces_centered -= faces_centered.mean(axis=1).reshape(n_samples, -1)
 
-temp = np.vstack([faces_centered[0]] * 1500)
+temp = np.vstack([faces_centered[0]] * 5)
 # temp = np.concatenate((faces_centered, faces_centered)) # all faces 2x
 print(f"Input Shape: {temp.shape}")
 
 print("Example Face")
 plt.imshow(temp[0].reshape(image_shape)/255, cmap = 'gray')
 
-h = hm.helmholtz([4096,4096], 'beta', .1)
+h = hm.helmholtz([4096,512], 'beta', .1)
 for image in tqdm(temp):
+    image = image.reshape(1, -1)
+    # print(f"image: {image.shape}")
     h.train(image)
 
 dreams = h.dreams
-# print("Dream Info:", len(dreams)), len(dreams[0])
+print("Dream Info:", len(dreams)), len(dreams[0])
 
 plt.figure()
 plt.imshow(dreams[-1].reshape(image_shape), cmap = 'gray')
@@ -39,7 +41,7 @@ plt.show()
 
 frames = [] # for storing the generated images
 fig = plt.figure()
-for dream in tqdm(dreams[:1000000000:500]):
+for dream in tqdm(dreams[::100]):
     dream = dream.reshape(image_shape)
     frames.append([plt.imshow(dream,cmap = 'gray',animated=True)])
 

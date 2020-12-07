@@ -36,16 +36,16 @@ class helmholtz(object):
 
     def sample(self, p):
         #Takes in probability p and outputs a sample from a distribution over
-        type = self.sample_type
+        dist_type = self.sample_type
         try:
             if p == 0:
                 p = 1e-6
                 print("Had to make smol number")
         except:
             p[p==0] = 1e-6
-        if type == 'binomial':
+        if dist_type == 'binomial':
             return np.random.binomial(1,p)
-        if type == 'beta':
+        if dist_type == 'beta':
             return np.random.beta(p, 1)
 
     def wake_phase(self, X):

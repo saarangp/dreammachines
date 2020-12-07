@@ -14,14 +14,15 @@ y = np.concatenate((y_train, y_test), axis = 0)
 print(X.shape, y.shape)
 
 # Isolate Ones
-digit = X[np.where(y == 1)]
+digit = X[np.where(y == 8)]
 digit = (digit.reshape((len(digit), 1, 28*28))).astype(float)
 print(digit.shape)
 plt.imshow(digit.reshape((len(digit),28,28))[0]/255, cmap='gray')
 plt.show()
 
 h = hm.helmholtz([784,64,32], 'beta', .1)
-for image in tqdm(digit[:10]):
+for image in tqdm(digit[:50]):
+    # print(f"image: {image.shape}")
     h.train(image)
 
 dreams = h.dreams
