@@ -104,4 +104,30 @@ class helmholtz(object):
 
 
 
+class SparseHelmholtz(helmholtz):
+    def __init__(self, l_sizes, sample_type = 'binomial', epsilon = .1, lmbda=0.1):
+        super().__init__(l_sizes, sample_type, epsilon)
+        self.lmbda = lmbda
+
+    def wake_phase(self, X):
+        l1_terms = [] # calculate l1 gradient
+        for i, layer in enumerate(self.layers[::-1]):
+            layer_l1 = self.lmbda * np.sign(layer.G) 
+            l1_terms.append(layer_l1)
+            
+        super().wake_phase(X)
+        # iterate over new layers and add l1 gradient
+        for i, layer in enumerate(self.layers[::-1]):
+            layer.G += l1_terms[i]
+
+    def sleep_phase(self):
+        l1_terms = [] # calculate l1 gradient
+        for i, layer in enumerate(self.layers[::-1]):
+            layer_l1 = self.lmbda * np.sign(layer.R) 
+            l1_terms.append(layer_l1)
+
+        super().sleep_phase()
+        # iterate over new layers, add l1 gradient
+        for i, layer in enumerate(self.layers[::-1]):
+            layer.R += l1_terms[i]
         
