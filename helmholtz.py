@@ -1,6 +1,7 @@
 #Helmholtz Model V2
-import numpy as np
-import tensorflow as tf
+# import numpy as np
+
+import tensorflow.experimental.numpy as np
 import math
 
 class Layer(object):

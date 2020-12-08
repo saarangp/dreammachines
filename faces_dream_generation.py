@@ -19,7 +19,7 @@ faces_centered = faces - faces.mean(axis=0)
 # local centering
 faces_centered -= faces_centered.mean(axis=1).reshape(n_samples, -1)
 
-temp = np.vstack([faces_centered[0]] * 5)
+temp = np.vstack([faces_centered[0]] * 100)
 # temp = np.concatenate((faces_centered, faces_centered)) # all faces 2x
 print(f"Input Shape: {temp.shape}")
 
