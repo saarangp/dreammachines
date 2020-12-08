@@ -15,8 +15,8 @@ def calc_LCA(Phi, X, lmbda=0.1, alpha=0.001, num_steps=1000):
     G = Phi.T @ Phi
     G = G - np.eye(G.shape[0])
     
-    a = np.ones((Phi.shape[1], X.shape[0])) / X.shape[0]
-    u = np.ones(a.shape) / X.shape[0]
+    a = np.random.rand(Phi.shape[1], X.shape[0])
+    u = np.random.rand(a.shape[0], a.shape[1])
 
     for i in range(num_steps):
         u = (1 - alpha) * u + alpha * update_func(Phi, X, G, a)
@@ -28,7 +28,7 @@ def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000):
     Calculate the feature dictionary for an image set X
     using nested gradient descent.
     """
-    Phi = np.ones((X.shape[1], a_dim))
+    Phi = np.random.rand(X.shape[1], a_dim)
     Phi = Phi @ np.diag(1 / np.linalg.norm(Phi, ord=2, axis=0))
     for i in progressbar(range(num_steps)):
         a = calc_LCA(Phi, X)
