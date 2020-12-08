@@ -44,11 +44,11 @@ class SparseCodingModel(object):
         self.n_activations = n_activations
         self.alpha = alpha
 
-    def train(self, X):
-        self.Phi = calc_Phi(X, self.n_activations)
+    def train(self, X, alpha=0.001, num_steps=2000):
+        self.Phi = calc_Phi(X, self.n_activations, alpha, num_steps)
     
-    def predict(self, X, num_steps=1000):
-        return calc_LCA(self.Phi, X, num_steps=num_steps)
+    def predict(self, X, lmbda=0.1, alpha=0.001, num_steps=1000):
+        return calc_LCA(self.Phi, X, lmbda, alpha, num_steps)
 
     def generate(self, A):
         return np.dot(self.Phi, A)
