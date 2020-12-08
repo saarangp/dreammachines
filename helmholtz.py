@@ -38,11 +38,15 @@ class helmholtz(object):
     def sample(self, p):
         #Takes in probability p and outputs a sample from a distribution over
         dist_type = self.sample_type
-        try:
-            if p == 0:
-                p = 1e-6
-                print("Had to make smol number")
-        except:
+        # try:
+        #     if p == 0:
+        #         p = 1e-6
+        #         print("Had to make smol number")
+        # except:
+        #     p[p==0] = 1e-6
+        if len(p)==1:
+            p = 1e-6
+        else:
             p[p==0] = 1e-6
         if dist_type == 'binomial':
             return np.random.binomial(1,p)
