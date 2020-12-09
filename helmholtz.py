@@ -1,15 +1,14 @@
 #Helmholtz Model V2
+
 import numpy as np
-# import tensorflow.experimental.numpy as np
 import math
-import torch
 
 class Layer(object):
 
     def __init__(self, size):
         self.size = size
-        self.R = torch.from_numpy(np.zeros(size)) #Recognition weights
-        self.G = torch.from_numpy(np.zeros(size)) #Generative Weights
+        self.R = np.zeros(size) #Recognition weights
+        self.G = np.zeros(size) #Generative Weights
 
 class helmholtz(object):
     
@@ -28,7 +27,7 @@ class helmholtz(object):
             print(l_size)
 
         self.dreams = []
-        self.B_G = torch.from_numpy(np.zeros((1,1)))
+        self.B_G = np.zeros((1,1))
         self.sample_type = sample_type
         self.epsilon = epsilon
 
@@ -47,13 +46,7 @@ class helmholtz(object):
         # if len(p)==1:
         #     p = 1e-6
         # else:
-        #     print(p, p.shape)
-        #     print("type: ", type(p))
-        #     # p = p.numpy()
-        #     p = np.array(p)
         #     p[p==0] = 1e-6
-        #     p = np.ndarray(p)
-
         if dist_type == 'binomial':
             return np.random.binomial(1,p)
         if dist_type == 'beta':
@@ -63,14 +56,12 @@ class helmholtz(object):
 
         # output = X
         #Recognition
-        outputs = [torch.from_numpy(X)]
-        # print(type(outputs[0]))
+        outputs = [X]
         # print(f"X.shape: {X.shape}")
         for layer in self.layers:
-            # print(type(outputs[-1]), type(layer.R))
-            sig = self.sigmoid(torch.mm(outputs[-1], layer.R))
+            sig = self.sigmoid(np.dot(outputs[-1], layer.R))
             # print("recognition: ", sig.shape, outputs[-1].shape, layer.R.shape)
-            outputs.append(torch.from_numpy(self.sample(sig)))
+            outputs.append(self.sample(sig))
 
         #Generative
         zeta = (self.sigmoid(self.B_G))
@@ -88,11 +79,11 @@ class helmholtz(object):
         p = (self.sigmoid(self.B_G))
 
         #DREAM!
-        outputs = [torch.from_numpy(self.sample(p))]
+        outputs = [self.sample(p)]
         for layer in self.layers[::-1]:
-            p = (self.sigmoid(torch.mm(layer.G, outputs[-1])))
+            p = (self.sigmoid(np.dot(layer.G, outputs[-1])))
             
-            outputs.append(torch.from_numpy(self.sample(p)))
+            outputs.append(self.sample(p))
         
         self.dreams.append(outputs[-1])
         #W_R recent output

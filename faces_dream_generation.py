@@ -26,7 +26,7 @@ print(f"Input Shape: {temp.shape}")
 print("Example Face")
 plt.imshow(temp[0].reshape(image_shape)/255, cmap = 'gray')
 
-h = hm.helmholtz([4096,512], 'beta', .1)
+h = hm.helmholtz([4096,10], 'beta', .1)
 for image in tqdm(temp):
     image = image.reshape(1, -1)
     # print(f"image: {image.shape}")
