@@ -131,7 +131,7 @@ class SparseHelmholtz(helmholtz):
         super().wake_phase(X)
         # iterate over new layers and add l1 gradient
         for i, layer in enumerate(self.layers[::-1]):
-            layer.G += l1_terms[i]
+            layer.G -= l1_terms[i]
 
     def sleep_phase(self):
         l1_terms = [] # calculate l1 gradient
@@ -142,5 +142,5 @@ class SparseHelmholtz(helmholtz):
         super().sleep_phase()
         # iterate over new layers, add l1 gradient
         for i, layer in enumerate(self.layers[::-1]):
-            layer.R += l1_terms[i]
+            layer.R -= l1_terms[i]
         
