@@ -81,29 +81,29 @@ class helmholtz(object):
         # print(f"X.shape: {X.shape}")
         for layer in self.layers:
             # print(type(outputs[-1]), type(layer.R))
-            sig = self.sigmoid(torch.matmul(outputs[-1], layer.R))
+            sig = torch.sigmoid(torch.matmul(outputs[-1], layer.R))
             # print("recognition: ", sig.shape, outputs[-1].shape, layer.R.shape)
             outputs.append(torch.from_numpy(self.sample(sig)).to(try_gpu()))
 
         #Generative
-        zeta = (self.sigmoid(self.B_G))
+        zeta = (torch.sigmoid(self.B_G))
         self.B_G += self.epsilon * (outputs[-1] - zeta)
         
         for i, layer in enumerate(self.layers):
             # print("Generative a:", outputs[i+1].shape, layer.G.shape, outputs[i].shape)
-            delta = self.sigmoid(torch.matmul(outputs[i+1], layer.G.T))
+            delta = torch.sigmoid(torch.matmul(outputs[i+1], layer.G.T))
             # print("Generative b:", outputs[i + 1].shape, layer.G.shape, outputs[i].shape, delta.shape)
             layerG_upd = self.epsilon * np.dot(outputs[i + 1].T, outputs[i] - delta)
             # print(f"layerG Updated: {layerG_upd.shape}")
             layer.G += layerG_upd.T
             
     def sleep_phase(self):
-        p = (self.sigmoid(self.B_G))
+        p = (torch.sigmoid(self.B_G))
 
         #DREAM!
         outputs = [torch.from_numpy(self.sample(p)).to(try_gpu())]
         for layer in self.layers[::-1]:
-            p = (self.sigmoid(torch.matmul(layer.G, outputs[-1])))
+            p = (torch.sigmoid(torch.matmul(layer.G, outputs[-1])))
             
             outputs.append(torch.from_numpy(self.sample(p)).to(try_gpu()))
         
@@ -111,7 +111,7 @@ class helmholtz(object):
         #W_R recent output
         for i,layer in enumerate(self.layers[::-1]):
             #print("sleep: ", layer.R.shape, outputs[i+1].shape)
-            psi = self.sigmoid(torch.matmul(outputs[i + 1].T, layer.R))
+            psi = torch.sigmoid(torch.matmul(outputs[i + 1].T, layer.R))
             
             #print("psi: ", psi.shape, "outputs[i]: ", outputs[i].shape,  "outputs[i+1]: ", outputs[i+1].shape)
             
