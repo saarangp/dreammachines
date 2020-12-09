@@ -4,12 +4,20 @@ import numpy as np
 import math
 import torch
 
+def try_gpu(i=0):  #@save
+    """Return gpu(i) if exists, otherwise return cpu()."""
+    if torch.cuda.device_count() >= i + 1:
+        return torch.device(f'cuda:{i}')
+    return torch.device('cpu')
+
 class Layer(object):
 
     def __init__(self, size):
+        
+        
         self.size = size
-        self.R = torch.from_numpy(np.zeros(size)) #Recognition weights
-        self.G = torch.from_numpy(np.zeros(size)) #Generative Weights
+        self.R = torch.from_numpy(np.zeros(size)).to(try_gpu()) #Recognition weights
+        self.G = torch.from_numpy(np.zeros(size)).to(try_gpu()) #Generative Weights
 
 class helmholtz(object):
     
@@ -18,6 +26,11 @@ class helmholtz(object):
         Helmholtz Machine Class w/ k layers
         @param layers (list): list of sizes of layers
         """
+        if torch.cuda.device_count() >= 1:
+            print("Running on GPU")
+        else:
+            print("Running on CPU")
+
         self.layers = []
         for i, size in enumerate(l_sizes):
             if i < len(l_sizes) - 1:
@@ -28,7 +41,7 @@ class helmholtz(object):
             print(l_size)
 
         self.dreams = []
-        self.B_G = torch.from_numpy(np.zeros((1,1)))
+        self.B_G = torch.from_numpy(np.zeros((1,1))).to(try_gpu())
         self.sample_type = sample_type
         self.epsilon = epsilon
 
@@ -63,14 +76,14 @@ class helmholtz(object):
 
         # output = X
         #Recognition
-        outputs = [torch.from_numpy(X)]
+        outputs = [torch.from_numpy(X).to(try_gpu())]
         # print(type(outputs[0]))
         # print(f"X.shape: {X.shape}")
         for layer in self.layers:
             # print(type(outputs[-1]), type(layer.R))
             sig = self.sigmoid(torch.mm(outputs[-1], layer.R))
             # print("recognition: ", sig.shape, outputs[-1].shape, layer.R.shape)
-            outputs.append(torch.from_numpy(self.sample(sig)))
+            outputs.append(torch.from_numpy(self.sample(sig)).to(try_gpu()))
 
         #Generative
         zeta = (self.sigmoid(self.B_G))
@@ -78,7 +91,7 @@ class helmholtz(object):
         
         for i, layer in enumerate(self.layers):
             # print("Generative a:", outputs[i+1].shape, layer.G.shape, outputs[i].shape)
-            delta = self.sigmoid(np.dot(outputs[i+1], layer.G.T))
+            delta = self.sigmoid(torch.mm(outputs[i+1], layer.G.T))
             # print("Generative b:", outputs[i + 1].shape, layer.G.shape, outputs[i].shape, delta.shape)
             layerG_upd = self.epsilon * np.dot(outputs[i + 1].T, outputs[i] - delta)
             # print(f"layerG Updated: {layerG_upd.shape}")
@@ -88,21 +101,21 @@ class helmholtz(object):
         p = (self.sigmoid(self.B_G))
 
         #DREAM!
-        outputs = [torch.from_numpy(self.sample(p))]
+        outputs = [torch.from_numpy(self.sample(p)).to(try_gpu())]
         for layer in self.layers[::-1]:
             p = (self.sigmoid(torch.mm(layer.G, outputs[-1])))
             
-            outputs.append(torch.from_numpy(self.sample(p)))
+            outputs.append(torch.from_numpy(self.sample(p)).to(try_gpu()))
         
         self.dreams.append(outputs[-1])
         #W_R recent output
         for i,layer in enumerate(self.layers[::-1]):
             #print("sleep: ", layer.R.shape, outputs[i+1].shape)
-            psi = self.sigmoid(np.dot(outputs[i + 1].T, layer.R))
+            psi = self.sigmoid(torch.mm(outputs[i + 1].T, layer.R))
             
             #print("psi: ", psi.shape, "outputs[i]: ", outputs[i].shape,  "outputs[i+1]: ", outputs[i+1].shape)
             
-            layerR_upd = self.epsilon * np.dot(outputs[i+1], outputs[i].T - psi)
+            layerR_upd = self.epsilon * torch.mm(outputs[i+1], outputs[i].T - psi)
             #print(f"layerR Updated: {layerR_upd.shape}")
             layer.R += layerR_upd
             
