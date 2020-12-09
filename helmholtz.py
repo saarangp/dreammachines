@@ -1,23 +1,14 @@
 #Helmholtz Model V2
-import numpy as np
-# import tensorflow.experimental.numpy as np
-import math
-import torch
 
-def try_gpu(i=0):  #@save
-    """Return gpu(i) if exists, otherwise return cpu()."""
-    if torch.cuda.device_count() >= i + 1:
-        return torch.device(f'cuda:{i}')
-    return torch.device('cpu')
+import numpy as np
+import math
 
 class Layer(object):
 
     def __init__(self, size):
-        
-        
         self.size = size
-        self.R = torch.from_numpy(np.zeros(size)).to(try_gpu()) #Recognition weights
-        self.G = torch.from_numpy(np.zeros(size)).to(try_gpu()) #Generative Weights
+        self.R = np.zeros(size) #Recognition weights
+        self.G = np.zeros(size) #Generative Weights
 
 class helmholtz(object):
     
@@ -26,11 +17,6 @@ class helmholtz(object):
         Helmholtz Machine Class w/ k layers
         @param layers (list): list of sizes of layers
         """
-        if torch.cuda.device_count() >= 1:
-            print("Running on GPU")
-        else:
-            print("Running on CPU")
-
         self.layers = []
         for i, size in enumerate(l_sizes):
             if i < len(l_sizes) - 1:
@@ -41,7 +27,7 @@ class helmholtz(object):
             print(l_size)
 
         self.dreams = []
-        self.B_G = torch.from_numpy(np.zeros((1,1))).to(try_gpu())
+        self.B_G = np.zeros((1,1))
         self.sample_type = sample_type
         self.epsilon = epsilon
 
@@ -60,13 +46,7 @@ class helmholtz(object):
         # if len(p)==1:
         #     p = 1e-6
         # else:
-        #     print(p, p.shape)
-        #     print("type: ", type(p))
-        #     # p = p.numpy()
-        #     p = np.array(p)
         #     p[p==0] = 1e-6
-        #     p = np.ndarray(p)
-
         if dist_type == 'binomial':
             return np.random.binomial(1,p)
         if dist_type == 'beta':
@@ -76,46 +56,44 @@ class helmholtz(object):
 
         # output = X
         #Recognition
-        outputs = [torch.from_numpy(X).to(try_gpu())]
-        # print(type(outputs[0]))
+        outputs = [X]
         # print(f"X.shape: {X.shape}")
         for layer in self.layers:
-            # print(type(outputs[-1]), type(layer.R))
-            sig = torch.sigmoid(torch.matmul(outputs[-1], layer.R))
+            sig = self.sigmoid(np.dot(outputs[-1], layer.R))
             # print("recognition: ", sig.shape, outputs[-1].shape, layer.R.shape)
-            outputs.append(torch.from_numpy(self.sample(sig)).to(try_gpu()))
+            outputs.append(self.sample(sig))
 
         #Generative
-        zeta = (torch.sigmoid(self.B_G))
+        zeta = (self.sigmoid(self.B_G))
         self.B_G += self.epsilon * (outputs[-1] - zeta)
         
         for i, layer in enumerate(self.layers):
             # print("Generative a:", outputs[i+1].shape, layer.G.shape, outputs[i].shape)
-            delta = torch.sigmoid(torch.matmul(outputs[i+1], layer.G.T))
+            delta = self.sigmoid(np.dot(outputs[i+1], layer.G.T))
             # print("Generative b:", outputs[i + 1].shape, layer.G.shape, outputs[i].shape, delta.shape)
             layerG_upd = self.epsilon * np.dot(outputs[i + 1].T, outputs[i] - delta)
             # print(f"layerG Updated: {layerG_upd.shape}")
             layer.G += layerG_upd.T
             
     def sleep_phase(self):
-        p = (torch.sigmoid(self.B_G))
+        p = (self.sigmoid(self.B_G))
 
         #DREAM!
-        outputs = [torch.from_numpy(self.sample(p)).to(try_gpu())]
+        outputs = [self.sample(p)]
         for layer in self.layers[::-1]:
-            p = (torch.sigmoid(torch.matmul(layer.G, outputs[-1])))
+            p = (self.sigmoid(np.dot(layer.G, outputs[-1])))
             
-            outputs.append(torch.from_numpy(self.sample(p)).to(try_gpu()))
+            outputs.append(self.sample(p))
         
         self.dreams.append(outputs[-1])
         #W_R recent output
         for i,layer in enumerate(self.layers[::-1]):
             #print("sleep: ", layer.R.shape, outputs[i+1].shape)
-            psi = torch.sigmoid(torch.matmul(outputs[i + 1].T, layer.R))
+            psi = self.sigmoid(np.dot(outputs[i + 1].T, layer.R))
             
             #print("psi: ", psi.shape, "outputs[i]: ", outputs[i].shape,  "outputs[i+1]: ", outputs[i+1].shape)
             
-            layerR_upd = self.epsilon * torch.matmul(outputs[i+1], outputs[i].T - psi)
+            layerR_upd = self.epsilon * np.dot(outputs[i+1], outputs[i].T - psi)
             #print(f"layerR Updated: {layerR_upd.shape}")
             layer.R += layerR_upd
             
