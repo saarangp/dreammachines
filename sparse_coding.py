@@ -2,7 +2,7 @@ import numpy as np
 from progressbar import progressbar
 
 def calc_g(u, lmbda):
-    return np.maximum(u - lmbda, 0)
+    return np.sign(u) * np.maximum(np.abs(u) - lmbda, 0)
 
 def update_func(Phi, X, G, a):
     return Phi.T @ X.T - G @ a
@@ -17,10 +17,13 @@ def calc_LCA(Phi, X, lmbda=0.1, alpha=0.001, num_steps=1000):
     
     a = np.random.rand(Phi.shape[1], X.shape[0])
     u = np.random.rand(a.shape[0], a.shape[1])
-
+    prev_u = np.zeros(u.shape)
     for i in range(num_steps):
         u = (1 - alpha) * u + alpha * update_func(Phi, X, G, a)
         a = calc_g(u, lmbda)
+        if np.linalg.norm(u - prev_u) < 0.005:
+            break
+        prev_u = u
     return a
 
 def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000):
