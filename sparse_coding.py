@@ -30,14 +30,16 @@ def calc_LCA(Phi, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         prev_u = u
     return a
 
-def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000, batch_size=100):
+def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000, batch_size=100, saved_phi=None):
     """
     Calculate the feature dictionary for an image set X
     using nested gradient descent.
     """
-    Phi = np.random.rand(X.shape[1], a_dim)
-    Phi = Phi - np.mean(Phi)
-    Phi = Phi @ np.diag(1 / np.linalg.norm(Phi, ord=2, axis=0))
+    Phi = saved_phi
+    if Phi is None:   
+        Phi = np.random.rand(X.shape[1], a_dim)
+        Phi = Phi - np.mean(Phi)
+        Phi = Phi @ np.diag(1 / np.linalg.norm(Phi, ord=2, axis=0))
     for i in progressbar(range(num_steps)):
         next_X = get_selections(X, batch_size)
         a = calc_LCA(Phi, next_X)
@@ -53,11 +55,18 @@ class SparseCodingModel(object):
         self.n_activations = n_activations
         self.alpha = alpha
 
-    def train(self, X, alpha=0.001, num_steps=2000):
-        self.Phi = calc_Phi(X, self.n_activations, alpha, num_steps, self.batch_size)
+    def train(self, X, alpha=0.001, num_steps=2000, saved_phi=None):
+        self.Phi = calc_Phi(X, self.n_activations, alpha=alpha, num_steps=num_steps, 
+                            batch_size=self.batch_size, saved_phi=saved_phi)
     
     def predict(self, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         return calc_LCA(self.Phi, X, lmbda, alpha, num_steps)
 
     def generate(self, A):
         return np.dot(self.Phi, A)
+
+    def save_Phi(file_name):
+        np.save(file_name, self.Phi)
+
+    def load_Phi(file_name):
+        self.Phi = np.load(file_name)
