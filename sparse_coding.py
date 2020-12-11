@@ -54,10 +54,11 @@ class SparseCodingModel(object):
         self.batch_size = batch_size
         self.n_activations = n_activations
         self.alpha = alpha
+        self.Phi = None
 
-    def train(self, X, alpha=0.001, num_steps=2000, saved_phi=None):
+    def train(self, X, alpha=0.001, num_steps=2000):
         self.Phi = calc_Phi(X, self.n_activations, alpha=alpha, num_steps=num_steps, 
-                            batch_size=self.batch_size, saved_phi=saved_phi)
+                            batch_size=self.batch_size, saved_phi=self.Phi)
     
     def predict(self, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         return calc_LCA(self.Phi, X, lmbda, alpha, num_steps)
@@ -65,8 +66,8 @@ class SparseCodingModel(object):
     def generate(self, A):
         return np.dot(self.Phi, A)
 
-    def save_Phi(file_name):
+    def save_Phi(self, file_name):
         np.save(file_name, self.Phi)
 
-    def load_Phi(file_name):
+    def load_Phi(self, file_name):
         self.Phi = np.load(file_name)
