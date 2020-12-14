@@ -101,7 +101,8 @@ class helmholtz(object):
         # todo Implement KL Divergence Stopping
         i = 0
         while i < n_iter:
-            self.wake_phase(X)
+            sample_idx = np.random.choice(np.arange(X.shape[0]))
+            self.wake_phase(X[sample_idx].reshape(1, -1))
             self.sleep_phase()
             i+=1
 

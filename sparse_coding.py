@@ -25,7 +25,7 @@ def calc_LCA(Phi, X, lmbda=0.1, alpha=0.001, num_steps=1000):
     for i in range(num_steps):
         u = (1 - alpha) * u + alpha * update_func(Phi, X, G, a)
         a = calc_g(u, lmbda)
-        if np.linalg.norm(u - prev_u) < 0.005:
+        if np.linalg.norm(u - prev_u) < 0.05:
             break
         prev_u = u
     return a

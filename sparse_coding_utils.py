@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from scipy import ndimage
+from skimage.transform import resize
 
 def rgb2gray(rgb):
     r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
@@ -51,21 +53,6 @@ def get_natural_images(img_mat, size):
                 images.append(next_img.reshape(size * size))
     return np.array(images)
 
-def get_flower_images(num_images = 400):
-    n = num_images - 1
-    ones_place = n % 10
-    tens_place = (n // 10) % 10
-    hund_place = (n // 100) % 10
-    images = []
-    for i in range(hund_place + 1):
-        for j in range(tens_place + 1):
-            for k in range(ones_place + 1):
-                next_image = plt.imread("archive/natural_images/flower/flower_0%s%s%s.jpg" % (i, j, k))
-                next_image = rgb2gray(next_image[:16, :16])
-                next_image = next_image.reshape(16 * 16)
-                images.append(next_image)
-    return np.array(images)
-
 def create_patchwork(Phi, x_dim, y_dim, shape):
     patchwork = np.zeros((x_dim * shape[0], y_dim * shape[1]))
     count = 0
@@ -76,3 +63,22 @@ def create_patchwork(Phi, x_dim, y_dim, shape):
             patchwork[a:a+shape[0], b:b+shape[1]] = Phi[:, count].reshape(shape[0], shape[1])
             count += 1
     return patchwork
+
+def contrast_images(images):
+    return images**2
+
+def undo_contrast_images(images):
+    return np.sqrt(images)
+
+def blur_images(images, scale=3):
+    return np.array([ndimage.gaussian_filter(img, scale) for img in images])
+    
+def sharpen_images(images, scale=5):
+    return np.array([img + scale * (img - ndimage.gaussian_filter(img, 1)) for img in images])
+
+def resize_images(images, scale):
+    assert len(images.shape) > 2, "Must have at least dimension 3"
+    if len(images.shape) == 4:
+        return ndimage.zoom(images, (1, scale, scale, 1))
+    else:
+        return ndimage.zoom(images, (1, scale, scale))
