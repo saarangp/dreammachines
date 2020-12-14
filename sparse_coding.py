@@ -30,7 +30,7 @@ def calc_LCA(Phi, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         prev_u = u
     return a
 
-def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000, batch_size=100, saved_phi=None):
+def calc_Phi(X, a_dim, alpha=0.001, lca_alpha=0.005, num_steps=2000, batch_size=100, saved_phi=None):
     """
     Calculate the feature dictionary for an image set X
     using nested gradient descent.
@@ -42,7 +42,7 @@ def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000, batch_size=100, saved_phi=No
         Phi = Phi @ np.diag(1 / np.linalg.norm(Phi, ord=2, axis=0))
     for i in progressbar(range(num_steps)):
         next_X = get_selections(X, batch_size)
-        a = calc_LCA(Phi, next_X)
+        a = calc_LCA(Phi, next_X, )
         Phi = Phi + alpha * (next_X.T - Phi @ a) @ a.T
         Phi = Phi @ np.diag(1 / np.linalg.norm(Phi, ord=2, axis=0))
 
@@ -50,7 +50,7 @@ def calc_Phi(X, a_dim, alpha=0.001, num_steps=2000, batch_size=100, saved_phi=No
 
 
 class SparseCodingModel(object):
-    def __init__(self, batch_size, n_activations, alpha):
+    def __init__(self, batch_size, n_activations, alpha, lca_alpha):
         self.batch_size = batch_size
         self.n_activations = n_activations
         self.alpha = alpha
@@ -58,7 +58,7 @@ class SparseCodingModel(object):
 
     def train(self, X, alpha=0.001, num_steps=2000):
         self.Phi = calc_Phi(X, self.n_activations, alpha=alpha, num_steps=num_steps, 
-                            batch_size=self.batch_size, saved_phi=self.Phi)
+                            lca_alpha=0.05, batch_size=self.batch_size, saved_phi=self.Phi)
     
     def predict(self, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         return calc_LCA(self.Phi, X, lmbda, alpha, num_steps)
