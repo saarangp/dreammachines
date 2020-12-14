@@ -50,15 +50,15 @@ def calc_Phi(X, a_dim, alpha=0.001, lca_alpha=0.005, num_steps=2000, batch_size=
 
 
 class SparseCodingModel(object):
-    def __init__(self, batch_size, n_activations, alpha, lca_alpha):
+    def __init__(self, batch_size, n_activations, alpha=0.001):
         self.batch_size = batch_size
         self.n_activations = n_activations
         self.alpha = alpha
         self.Phi = None
 
-    def train(self, X, alpha=0.001, num_steps=2000):
+    def train(self, X, alpha=0.001, num_steps=2000, lca_alpha=0.005):
         self.Phi = calc_Phi(X, self.n_activations, alpha=alpha, num_steps=num_steps, 
-                            lca_alpha=0.05, batch_size=self.batch_size, saved_phi=self.Phi)
+                            lca_alpha=lca_alpha, batch_size=self.batch_size, saved_phi=self.Phi)
     
     def predict(self, X, lmbda=0.1, alpha=0.001, num_steps=1000):
         return calc_LCA(self.Phi, X, lmbda, alpha, num_steps)
