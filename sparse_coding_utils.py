@@ -82,3 +82,9 @@ def resize_images(images, scale):
         return ndimage.zoom(images, (1, scale, scale, 1))
     else:
         return ndimage.zoom(images, (1, scale, scale))
+
+def image_MSE(a, b):
+    return (1 / (a.shape[0] * b.shape[0]) * ((a - b)**2)
+
+def image_PSNR(a, b):
+    return 20 * np.log10(255) - 10 * np.log10(image_MSE(255*a, 255*b))
