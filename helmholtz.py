@@ -97,11 +97,15 @@ class helmholtz(object):
             #print(f"layerR Updated: {layerR_upd.shape}")
             layer.R += layerR_upd
             
-    def train(self, X, n_iter = 1000):
+    def train(self, X, n_iter = 1000, random_sample=False):
         # todo Implement KL Divergence Stopping
         i = 0
         while i < n_iter:
-            self.wake_phase(X)
+            if random_sample
+                next_idx = np.random.choice(X.shape[0])
+                self.wake_phase(X[next_idx].reshape(1, -1))
+            else:
+                self.wake_phase(X)
             self.sleep_phase()
             i+=1
 
